@@ -1,2 +1,3 @@
 /data/emoticon_paper/train.csv
 /data/tweets/*
+/__pycache__
