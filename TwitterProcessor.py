@@ -62,15 +62,15 @@ class TwitterProcessor:
 
         for word in tweet.split():
             # remove punctuation
-            word = word.strip("'\"?!,.():;")
+            word = word.strip("!\"\#$%()*+,./:;<=>?@[\]^_`{|}~")
             # remove repetitions
             word = self.remove_repetitions(word)
             # remove further punctuations
             word = re.sub(r"(-|\'|&)", "", word)
 
             # check if word valid
-            # if self.is_valid_word(word):
-            preprocessed_tweet.append(word)
+            if self.is_valid_word(word):
+                preprocessed_tweet.append(word)
 
         return " ".join(preprocessed_tweet)
 
