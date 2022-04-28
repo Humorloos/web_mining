@@ -2,6 +2,9 @@ import pandas as pd
 import re
 import sys
 import random
+import nltk
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import wordnet
 
 from helper import (
     NEGATIVE_EMOJIS,
@@ -36,14 +39,25 @@ class TwitterProcessor:
 
     def is_valid_word(self, word: str):
         return re.search(r"^[a-zA-Z][a-z0-9A-Z\._]*$", word) is not None
+    
+    def get_pos(self,word:str):
+        # get POS tag of a word
+        tag=nltk.pos_tag([word])[0][1][0].upper()
+        tag_dict={"J":wordnet.ADJ,"N":wordnet.NOUN,"V":wordnet.VERB,"R":wordnet.ADV}
+        return tag_dict.get(tag, wordnet.NOUN)
+    
+    def lemmatize(self,word:str):
+        # lemmatize word depending on POS tag
+        lemmatizer=WordNetLemmatizer()
+        return lemmatizer.lemmatize(word,pos=self.get_pos(word))
 
     def preprocess_tweet(self, tweet: str):
         preprocessed_tweet = []
 
-        # to lower case
-        tweet = tweet.lower()
         # remove emoticons
         tweet = self.remove_emoticons(tweet)
+        # to lower case
+        tweet = tweet.lower()
         # handle emojis
         tweet = self.handle_emojis(tweet)
         # replaces URL with URL token
@@ -70,6 +84,8 @@ class TwitterProcessor:
 
             # check if word valid
             if self.is_valid_word(word):
+                # lemmatize word
+                word = self.lemmatize(word)
                 preprocessed_tweet.append(word)
 
         return " ".join(preprocessed_tweet)
