@@ -28,7 +28,11 @@ class TwitterProcessor:
         return tweet
 
     def handle_emojis(self, tweet: str):
-        pass
+        # remove positive and negative emojis
+        tweet=re.sub(r"({})".format("|".join(SENTIMENT_EMOJIS))," ",tweet)
+        # replace other neutral emojis with EMO token
+        tweet=re.sub(r"({})".format("|".join(map(re.escape,NEUTRAL_EMOJIS)))," EMO ",tweet)
+        return tweet
 
     def is_valid_word(self, word: str):
         return re.search(r"^[a-zA-Z][a-z0-9A-Z\._]*$", word) is not None
@@ -40,6 +44,8 @@ class TwitterProcessor:
         tweet = tweet.lower()
         # remove emoticons
         tweet = self.remove_emoticons(tweet)
+        # handle emojis
+        tweet = self.handle_emojis(tweet)
         # replaces URL with URL token
         tweet = re.sub(r"((www\.[\S]+)|(https?://[\S]+))", "URL", tweet)
         # replace @user with USERNAME token
@@ -77,6 +83,3 @@ if __name__ == "__main__":
     tweet = random.choice(df["full_text"].to_list())
     print(f'"{tweet}"')
     print(f'"{twitter_processor.preprocess_tweet(tweet)}"')
-
-    s = "@EdenBFKN @MZerusenay 😂💛😍 I 💐 know 🤦🏾 test 📸🌞💛🎶"
-    print(s)
