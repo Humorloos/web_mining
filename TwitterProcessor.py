@@ -1,10 +1,11 @@
 import pandas as pd
 import re
 import sys
-import random
 import nltk
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
+from tqdm import tqdm
+tqdm.pandas()
 
 from helper import (
     NEGATIVE_EMOJIS,
@@ -93,9 +94,13 @@ class TwitterProcessor:
 
 if __name__ == "__main__":
     twitter_processor = TwitterProcessor()
+    # command line args
+    tweets_file=sys.argv[1]
+    preprocessed_file=sys.argv[2]
     # read in tweets csv
-    df = pd.read_csv(sys.argv[1], engine="python", delimiter=",", usecols=["full_text"])
-    # get random tweet
-    tweet = random.choice(df["full_text"].to_list())
-    print(f'"{tweet}"')
-    print(f'"{twitter_processor.preprocess_tweet(tweet)}"')
+    df = pd.read_csv(tweets_file, engine="python", delimiter=",", usecols=["full_text"])
+    # apply preprocessing
+    # save preprocessed tweets as pandas series
+    preprocessed_text=df["full_text"].progress_apply(lambda x: twitter_processor.preprocess_tweet(x))
+    # write series to pickle file
+    preprocessed_text.to_pickle(preprocessed_file)
