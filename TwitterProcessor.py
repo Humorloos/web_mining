@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 import sys
+import csv
 import nltk
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
@@ -102,5 +103,7 @@ if __name__ == "__main__":
     # apply preprocessing
     # save preprocessed tweets as pandas series
     preprocessed_text=df["full_text"].progress_apply(lambda x: twitter_processor.preprocess_tweet(x))
+    # insert series into dataframe
+    df.insert(2, "prep_text", preprocessed_text)
     # write series to pickle file
-    preprocessed_text.to_pickle(preprocessed_file)
+    df.to_csv(preprocessed_file, index=False, quoting=csv.QUOTE_ALL)
