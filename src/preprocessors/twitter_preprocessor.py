@@ -1,3 +1,10 @@
+from emoji import EMOJI_DATA
+from constants.glyph_constants import (
+    NEGATIVE_EMOJIS,
+    NEGATIVE_EMOTICON_REGEX,
+    POSITIVE_EMOJIS,
+    POSITIVE_EMOTICON_REGEX,
+)
 import pandas as pd
 import re
 import sys
@@ -8,20 +15,13 @@ from nltk.corpus import wordnet
 from tqdm import tqdm
 tqdm.pandas()
 
-from helper import (
-    NEGATIVE_EMOJIS,
-    NEGATIVE_EMOTICON_REGEX,
-    POSITIVE_EMOJIS,
-    POSITIVE_EMOTICON_REGEX,
-)
-from emoji import EMOJI_DATA
 
 SENTIMENT_EMOJIS = NEGATIVE_EMOJIS + POSITIVE_EMOJIS
+NEUTRAL_EMOJIS = [i for i in list(
+    EMOJI_DATA.keys()) if i not in SENTIMENT_EMOJIS]
 
-NEUTRAL_EMOJIS = [i for i in list(EMOJI_DATA.keys()) if i not in SENTIMENT_EMOJIS]
 
-
-class TwitterProcessor:
+class TwitterPreprocessor:
     def remove_repetitions(self, word: str):
         # replace 2+ letters with 2 letters
         # huuuuuuungry -> huungry
@@ -34,24 +34,26 @@ class TwitterProcessor:
 
     def handle_emojis(self, tweet: str):
         # remove positive and negative emojis
-        tweet=re.sub(r"({})".format("|".join(SENTIMENT_EMOJIS))," ",tweet)
+        tweet = re.sub(r"({})".format("|".join(SENTIMENT_EMOJIS)), " ", tweet)
         # replace other neutral emojis with EMO token
-        tweet=re.sub(r"({})".format("|".join(map(re.escape,NEUTRAL_EMOJIS)))," EMO ",tweet)
+        tweet = re.sub(r"({})".format(
+            "|".join(map(re.escape, NEUTRAL_EMOJIS))), " EMO ", tweet)
         return tweet
 
     def is_valid_word(self, word: str):
         return re.search(r"^[a-zA-Z][a-z0-9A-Z\._]*$", word) is not None
-    
-    def get_pos(self,word:str):
+
+    def get_pos(self, word: str):
         # get POS tag of a word
-        tag=nltk.pos_tag([word])[0][1][0].upper()
-        tag_dict={"J":wordnet.ADJ,"N":wordnet.NOUN,"V":wordnet.VERB,"R":wordnet.ADV}
+        tag = nltk.pos_tag([word])[0][1][0].upper()
+        tag_dict = {"J": wordnet.ADJ, "N": wordnet.NOUN,
+                    "V": wordnet.VERB, "R": wordnet.ADV}
         return tag_dict.get(tag, wordnet.NOUN)
-    
-    def lemmatize(self,word:str):
+
+    def lemmatize(self, word: str):
         # lemmatize word depending on POS tag
-        lemmatizer=WordNetLemmatizer()
-        return lemmatizer.lemmatize(word,pos=self.get_pos(word))
+        lemmatizer = WordNetLemmatizer()
+        return lemmatizer.lemmatize(word, pos=self.get_pos(word))
 
     def preprocess_tweet(self, tweet: str):
         preprocessed_tweet = []
@@ -94,15 +96,17 @@ class TwitterProcessor:
 
 
 if __name__ == "__main__":
-    twitter_processor = TwitterProcessor()
+    twitter_processor = TwitterPreprocessor()
     # command line args
-    tweets_file=sys.argv[1]
-    preprocessed_file=sys.argv[2]
+    tweets_file = sys.argv[1]
+    preprocessed_file = sys.argv[2]
     # read in tweets csv
-    df = pd.read_csv(tweets_file, engine="python", delimiter=",", usecols=["full_text"])
+    df = pd.read_csv(tweets_file, engine="python",
+                     delimiter=",", usecols=["full_text"])
     # apply preprocessing
     # save preprocessed tweets as pandas series
-    preprocessed_text=df["full_text"].progress_apply(lambda x: twitter_processor.preprocess_tweet(x))
+    preprocessed_text = df["full_text"].progress_apply(
+        lambda x: twitter_processor.preprocess_tweet(x))
     # insert series into dataframe
     df.insert(2, "prep_text", preprocessed_text)
     # write series to pickle file
