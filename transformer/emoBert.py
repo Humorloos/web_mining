@@ -15,6 +15,9 @@ class EmoBERT(pl.LightningModule):
     def __init__(self, config):
         super().__init__()
 
+        # todo: batch size val should be as large as possible
+        self.batch_size_val = 100
+
         self.weight_decay = config['weight_decay']
         self.lr = config['lr']
         self.optimizer = config['optimizer']
@@ -40,6 +43,14 @@ class EmoBERT(pl.LightningModule):
         return DataLoader(dataset=self.train_set,
                           shuffle=True,
                           batch_size=self.batch_size_train,
+                          collate_fn=self.custom_collate,
+                          num_workers=self.num_workers,
+                          pin_memory=True)
+
+    def val_dataloader(self):
+        return DataLoader(dataset=self.val_set,
+                          shuffle=False,
+                          batch_size=self.batch_size_val,
                           collate_fn=self.custom_collate,
                           num_workers=self.num_workers,
                           pin_memory=True)
