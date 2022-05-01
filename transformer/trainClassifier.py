@@ -21,6 +21,7 @@ def train_classifier(config, max_time, min_delta, patience, checkpoint_dir=None)
         patience=patience,
         verbose=True)
     tune_report_checkpoint = TuneReportCheckpointCallback(
+        # todo: add validation accuracy
         {'loss': 'ptl/val_loss'},
         on='validation_end')
 
@@ -31,5 +32,7 @@ def train_classifier(config, max_time, min_delta, patience, checkpoint_dir=None)
         # gpus=torch.cuda.device_count(),
         gpus=0,
         max_time=max_time,
+        # todo: adjust this so that validation is triggered about once every 10? minutes
+        val_check_interval=1.0,
     )
     trainer.fit(model)
