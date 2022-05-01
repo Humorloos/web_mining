@@ -5,25 +5,15 @@ import pytorch_lightning as pl
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-from transformers import AutoModelForMaskedLM, AutoTokenizer, RobertaModel, \
+from transformers import RobertaModel, \
     RobertaTokenizer
 
 from transformer.EmoticonDataset import EmoticonDataset
 
 
 class EmoBERT(pl.LightningModule):
-    def __init__(self):
+    def __init__(self, config):
         super().__init__()
-
-        config = {
-            'batch_size_train': 16,
-            # 'num_workers': 8,
-            'num_workers': 1,
-            'optimizer': torch.optim.AdamW,
-            'lr': 1e-2,
-            'weight_decay': 1e-3,
-            'dropout_prob': 0.5,
-        }
 
         self.weight_decay = config['weight_decay']
         self.lr = config['lr']
@@ -42,7 +32,9 @@ class EmoBERT(pl.LightningModule):
         self.loss = nn.BCELoss()
 
         logging.info('Loading training dataset')
-        self.train_set = EmoticonDataset()
+        self.train_set = EmoticonDataset('train')
+        # todo: use separate validation set, not test set
+        self.val_set = EmoticonDataset('test')
 
     def train_dataloader(self):
         return DataLoader(dataset=self.train_set,
@@ -65,6 +57,17 @@ class EmoBERT(pl.LightningModule):
         self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True,
                  logger=True)
         return loss
+
+    def validation_step(self, batch, batch_idx):
+        tokens, y = batch
+        y_hat = self(tokens)
+        loss = self.loss(y_hat, y)
+        self.log('val_loss', loss)
+        return loss
+
+    def validation_epoch_end(self, outputs):
+        avg_loss = torch.tensor(outputs).mean()
+        self.log("ptl/val_loss", avg_loss)
 
     def configure_optimizers(self):
         return self.optimizer(params=self.parameters(),

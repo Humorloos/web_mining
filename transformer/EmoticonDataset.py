@@ -5,9 +5,9 @@ from constants import DATA_DIR
 
 
 class EmoticonDataset(Dataset):
-    def __init__(self):
+    def __init__(self, purpose):
         self.data = pd.read_csv(
-            DATA_DIR / 'emoticon_paper' / 'train.csv',
+            DATA_DIR / 'emoticon_paper' / f'{purpose}.csv',
             encoding='latin-1',
             header=None,
             names=['polarity', 'id', 'date', 'query', 'user', 'text']
