@@ -99,7 +99,7 @@ if __name__ == "__main__":
     tweets_file=sys.argv[1]
     preprocessed_file=sys.argv[2]
     # read in tweets csv
-    df = pd.read_csv(tweets_file, engine="python", delimiter=",", usecols=["full_text"])
+    df = pd.read_csv(tweets_file, engine="python", delimiter=",")
     # apply preprocessing
     # save preprocessed tweets as pandas series
     preprocessed_text=df["full_text"].progress_apply(lambda x: twitter_processor.preprocess_tweet(x))
