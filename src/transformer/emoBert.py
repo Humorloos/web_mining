@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader
 from transformers import RobertaModel, \
     RobertaTokenizer
 
+from src.constants.constants import MAX_BATCH_SIZE, VAL_SET_SIZE
 from src.transformer.datasets.EmoticonTrainValSplit import get_emoticon_train_val_split
 
 
@@ -16,8 +17,7 @@ class EmoBERT(pl.LightningModule):
     def __init__(self, config):
         super().__init__()
 
-        # todo: batch size val should be as large as possible
-        self.batch_size_val = 50
+        self.batch_size_val = min(MAX_BATCH_SIZE, VAL_SET_SIZE)
 
         self.weight_decay = config['weight_decay']
         self.lr = config['lr']
