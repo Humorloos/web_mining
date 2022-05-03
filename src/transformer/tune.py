@@ -8,10 +8,10 @@ from ray import tune
 from ray.tune.suggest.bohb import TuneBOHB
 from ray.tune.schedulers import HyperBandForBOHB
 
-from constants import DATA_DIR
+from src.constants.constants import TRANSFORMER_DIR
 from src.transformer.trainClassifier import train_classifier
 
-RAY_RESULTS_DIR = DATA_DIR / 'transformer' / 'ray_results'
+RAY_RESULTS_DIR = TRANSFORMER_DIR / 'ray_results'
 
 local_timezone = datetime.now(timezone(timedelta(0))).astimezone().tzinfo
 start_timestamp = pd.Timestamp.today(tz=local_timezone).strftime('%Y-%m-%d_%H.%M')
