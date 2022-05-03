@@ -35,12 +35,16 @@ config = {
     'dropout_prob': tune.uniform(0.1, 0.5),
 }
 
-bohb = TuneBOHB(metric='loss', mode='min')
 
+# Reporter for reporting progress in command line
 reporter = CLIReporter(
     parameter_columns=["batch_size_train", "lr", "weight_decay", "dropout_prob"],
     metric_columns=["loss", "accuracy", "training_iteration"])
 
+# BOHB search algorithm for finding new hyperparameter configurations
+search_alg = TuneBOHB(metric='loss', mode='min')
+
+# BOHB scheduler for scheduling and discarding trials
 iterations_per_epoch = 1 / VAL_CHECK_INTERVAL
 scheduler = HyperBandForBOHB(
     time_attr="training_iteration",
@@ -50,9 +54,11 @@ scheduler = HyperBandForBOHB(
 
 
 def get_trial_name(trial):
+    """Function for generating trial names"""
     return f"{pd.Timestamp.today(tz=local_timezone).strftime('%Y-%m-%d_%H.%M')}_{trial.trial_id}"
 
 
+# run hyperparameter optimization
 analysis = tune.run(
     tune.with_parameters(
         train_classifier,
@@ -72,6 +78,6 @@ analysis = tune.run(
         'gpu': MAX_GPUS,
         'cpu': MAX_WORKERS
     },
-    search_alg=bohb,
+    search_alg=search_alg,
     progress_reporter=reporter,
 )
