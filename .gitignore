@@ -1,4 +1,3 @@
-/data/emoticon_paper/train.csv
-/data/tweets/*
-/__pycache__
+/data
+__pycache__
 test.ipynb
