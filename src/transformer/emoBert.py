@@ -3,12 +3,12 @@ import logging
 import pandas as pd
 import pytorch_lightning as pl
 import torch
+import torchmetrics
 from torch import nn
 from torch.utils.data import DataLoader
 from transformers import RobertaModel, \
     RobertaTokenizer
 
-from src.transformer.datasets.EmoticonDataset import EmoticonDataset
 from src.transformer.datasets.EmoticonTrainValSplit import get_emoticon_train_val_split
 
 
@@ -17,7 +17,7 @@ class EmoBERT(pl.LightningModule):
         super().__init__()
 
         # todo: batch size val should be as large as possible
-        self.batch_size_val = 100
+        self.batch_size_val = 50
 
         self.weight_decay = config['weight_decay']
         self.lr = config['lr']
@@ -34,6 +34,7 @@ class EmoBERT(pl.LightningModule):
             out_features=1)
         self.sigmoid = nn.Sigmoid()
         self.loss = nn.BCELoss()
+        self.accuracy = torchmetrics.Accuracy()
 
         logging.info('Loading training dataset')
         self.train_set, self.val_set = get_emoticon_train_val_split()
@@ -72,12 +73,14 @@ class EmoBERT(pl.LightningModule):
         tokens, y = batch
         y_hat = self(tokens)
         loss = self.loss(y_hat, y)
-        self.log('val_loss', loss)
-        return loss
+        accuracy = self.accuracy(y_hat, y.int())
+        return {'loss': loss, 'accuracy': accuracy}
 
     def validation_epoch_end(self, outputs):
-        avg_loss = torch.tensor(outputs).mean()
+        avg_loss = torch.stack([x["loss"] for x in outputs]).mean()
         self.log("ptl/val_loss", avg_loss)
+        avg_accuracy = torch.stack([x["accuracy"] for x in outputs]).mean()
+        self.log("ptl/val_accuracy", avg_accuracy)
 
     def configure_optimizers(self):
         return self.optimizer(params=self.parameters(),
