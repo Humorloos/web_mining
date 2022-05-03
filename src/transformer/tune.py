@@ -39,7 +39,7 @@ bohb = TuneBOHB(metric='loss', mode='min')
 
 reporter = CLIReporter(
     parameter_columns=["batch_size_train", "lr", "weight_decay", "dropout_prob"],
-    metric_columns=["loss", "mean_accuracy", "training_iteration"])
+    metric_columns=["loss", "accuracy", "training_iteration"])
 
 iterations_per_epoch = 1 / VAL_CHECK_INTERVAL
 scheduler = HyperBandForBOHB(
