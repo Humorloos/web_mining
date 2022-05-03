@@ -1,5 +1,6 @@
 from sklearn.model_selection import train_test_split
 
+from src.constants.constants import VAL_SET_SIZE
 from src.transformer.datasets.EmoBertDataset import EmoBertDataset
 from src.transformer.datasets.EmoticonDataset import EmoticonDataset
 
@@ -11,4 +12,4 @@ def get_emoticon_train_val_split():
     """
     data = EmoticonDataset('train').data
     return tuple(EmoBertDataset(split)
-                 for split in train_test_split(data, test_size=10000, random_state=420, stratify=data['polarity']))
+                 for split in train_test_split(data, test_size=VAL_SET_SIZE, random_state=420, stratify=data['polarity']))
