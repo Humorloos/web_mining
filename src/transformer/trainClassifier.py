@@ -4,7 +4,7 @@ from pytorch_lightning.loggers import WandbLogger
 from ray import tune
 from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
 
-from transformer.emoBert import EmoBERT
+from src.transformer.emoBert import EmoBERT
 
 
 def train_classifier(config, max_time, min_delta, patience, checkpoint_dir=None):

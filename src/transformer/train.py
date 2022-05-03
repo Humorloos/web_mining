@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import torch
 
-from transformer.trainClassifier import train_classifier
+from src.transformer.trainClassifier import train_classifier
 
 MIN_DELTA = 0.01  # minimum delta in validation loss for early stopping
 PATIENCE = 3  # number of consecutive epochs with validation loss < MIN_DELTA after which to stop early

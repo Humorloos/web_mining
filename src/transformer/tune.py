@@ -9,7 +9,7 @@ from ray.tune.suggest.bohb import TuneBOHB
 from ray.tune.schedulers import HyperBandForBOHB
 
 from constants import DATA_DIR
-from transformer.trainClassifier import train_classifier
+from src.transformer.trainClassifier import train_classifier
 
 RAY_RESULTS_DIR = DATA_DIR / 'transformer' / 'ray_results'
 

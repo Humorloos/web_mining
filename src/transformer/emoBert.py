@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from transformers import RobertaModel, \
     RobertaTokenizer
 
-from transformer.EmoticonDataset import EmoticonDataset
+from src.transformer.EmoticonDataset import EmoticonDataset
 
 
 class EmoBERT(pl.LightningModule):
