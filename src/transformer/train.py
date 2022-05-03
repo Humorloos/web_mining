@@ -6,8 +6,6 @@ from src.transformer.trainClassifier import train_classifier
 
 config = {
     'batch_size_train': 16,
-    # 'batch_size_train': 16,
-    # 'num_workers': 8,
     'num_workers': 1,
     'optimizer': torch.optim.AdamW,
     'lr': 1e-2,
