@@ -41,6 +41,7 @@ analysis = tune.run(
         min_delta=MIN_DELTA,
         patience=PATIENCE,
         max_time=MAX_TIME,
+        tune=True
     ),
     metric="loss",
     mode="min",

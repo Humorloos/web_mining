@@ -7,7 +7,7 @@ from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
 from src.transformer.emoBert import EmoBERT
 
 
-def train_classifier(config, max_time, min_delta, patience, checkpoint_dir=None):
+def train_classifier(config, max_time, min_delta, patience, checkpoint_dir=None, tune=False):
     # initialize model
     if checkpoint_dir:
         model = EmoBERT.load_from_checkpoint(checkpoint_dir / "checkpoint")
@@ -15,20 +15,21 @@ def train_classifier(config, max_time, min_delta, patience, checkpoint_dir=None)
         model = EmoBERT(config=config)
 
     # callbacks
-    early_stopping = EarlyStopping(
+    callbacks = [EarlyStopping(
         monitor='val_loss',
         min_delta=min_delta,
         patience=patience,
-        verbose=True)
-    tune_report_checkpoint = TuneReportCheckpointCallback(
-        # todo: add validation accuracy
-        {'loss': 'ptl/val_loss'},
-        on='validation_end')
+        verbose=True)]
+    if tune:
+        callbacks.append(TuneReportCheckpointCallback(
+            # todo: add validation accuracy
+            {'loss': 'ptl/val_loss'},
+            on='validation_end'))
 
     # train model
     trainer = pl.Trainer(
         logger=WandbLogger(save_dir=tune.get_trial_dir(), project="web_mining"),
-        callbacks=[early_stopping, tune_report_checkpoint],
+        callbacks=callbacks,
         # gpus=torch.cuda.device_count(),
         gpus=0,
         max_time=max_time,
