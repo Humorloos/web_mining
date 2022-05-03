@@ -2,11 +2,11 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
 
-from src.constants.constants import TRANSFORMER_DIR
+from src.constants.constants import TRANSFORMER_DIR, MAX_EPOCHS, PATIENCE, MIN_DELTA, VAL_CHECK_INTERVAL
 from src.transformer.emoBert import EmoBERT
 
 
-def train_classifier(config, max_time, min_delta, patience, checkpoint_dir=None, do_tune=False):
+def train_classifier(config, checkpoint_dir=None, do_tune=False):
     # initialize model
     if checkpoint_dir:
         model = EmoBERT.load_from_checkpoint(checkpoint_dir / "checkpoint")
@@ -17,16 +17,15 @@ def train_classifier(config, max_time, min_delta, patience, checkpoint_dir=None,
 
     # callbacks
     callbacks = [EarlyStopping(
-        monitor='val_loss',
-        min_delta=min_delta,
-        patience=patience,
+        monitor='ptl/val_loss',
+        min_delta=MIN_DELTA,
+        patience=PATIENCE,
         verbose=True)]
     if do_tune:
         from ray import tune
         from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
         callbacks.append(TuneReportCheckpointCallback(
-            # todo: add validation accuracy
-            {'loss': 'ptl/val_loss'},
+            {'loss': 'ptl/val_loss', 'accuracy': 'ptl/val_accuracy'},
             on='validation_end'))
         save_dir = tune.get_trial_dir()
 
@@ -34,10 +33,8 @@ def train_classifier(config, max_time, min_delta, patience, checkpoint_dir=None,
     trainer = pl.Trainer(
         logger=WandbLogger(save_dir=save_dir, project="web_mining"),
         callbacks=callbacks,
-        # gpus=torch.cuda.device_count(),
         gpus=0,
-        max_time=max_time,
-        # todo: adjust this so that validation is triggered about once every 10? minutes
-        val_check_interval=1.0,
+        max_epochs=MAX_EPOCHS,
+        val_check_interval=VAL_CHECK_INTERVAL,
     )
     trainer.fit(model)
