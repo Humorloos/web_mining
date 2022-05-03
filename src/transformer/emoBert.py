@@ -8,7 +8,8 @@ from torch.utils.data import DataLoader
 from transformers import RobertaModel, \
     RobertaTokenizer
 
-from src.transformer.EmoticonDataset import EmoticonDataset
+from src.transformer.datasets.EmoticonDataset import EmoticonDataset
+from src.transformer.datasets.EmoticonTrainValSplit import get_emoticon_train_val_split
 
 
 class EmoBERT(pl.LightningModule):
@@ -35,9 +36,7 @@ class EmoBERT(pl.LightningModule):
         self.loss = nn.BCELoss()
 
         logging.info('Loading training dataset')
-        self.train_set = EmoticonDataset('train')
-        # todo: use separate validation set, not test set
-        self.val_set = EmoticonDataset('test')
+        self.train_set, self.val_set = get_emoticon_train_val_split()
 
     def train_dataloader(self):
         return DataLoader(dataset=self.train_set,

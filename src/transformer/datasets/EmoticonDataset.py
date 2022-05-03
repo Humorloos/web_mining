@@ -1,10 +1,11 @@
+"""Generic Dataset for training based on original author's training set"""
+
 import pandas as pd
-from torch.utils.data import Dataset
 
-from ..constants.constants import DATA_DIR
+from src.constants.constants import DATA_DIR
 
 
-class EmoticonDataset(Dataset):
+class EmoticonDataset:
     def __init__(self, purpose):
         self.data = pd.read_csv(
             DATA_DIR / 'emoticon_paper' / f'{purpose}.csv',
@@ -14,10 +15,3 @@ class EmoticonDataset(Dataset):
         )[['text', 'polarity']]
         # set polarity 4 to 1 to get probability vector
         self.data.loc[self.data['polarity'] == 4, 'polarity'] = 1
-        self.data.dtype = 'float32'
-
-    def __getitem__(self, item):
-        return self.data.iloc[item]
-
-    def __len__(self):
-        return self.data.shape[0]
