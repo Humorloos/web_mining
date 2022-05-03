@@ -1,7 +1,7 @@
 import pandas as pd
 from torch.utils.data import Dataset
 
-from constants import DATA_DIR
+from ..constants.constants import DATA_DIR
 
 
 class EmoticonDataset(Dataset):
