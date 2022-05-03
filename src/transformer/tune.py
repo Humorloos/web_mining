@@ -37,29 +37,41 @@ config = {
 
 bohb = TuneBOHB(metric='loss', mode='min')
 
+reporter = CLIReporter(
+    parameter_columns=["batch_size_train", "lr", "weight_decay", "dropout_prob"],
+    metric_columns=["loss", "mean_accuracy", "training_iteration"])
+
+iterations_per_epoch = 1 / VAL_CHECK_INTERVAL
+scheduler = HyperBandForBOHB(
+    time_attr="training_iteration",
+    # train for at most the number of iterations that fit into the max number of epochs
+    max_t=MAX_EPOCHS * iterations_per_epoch
+)
+
+
+def get_trial_name(trial):
+    return f"{pd.Timestamp.today(tz=local_timezone).strftime('%Y-%m-%d_%H.%M')}_{trial.trial_id}"
+
+
 analysis = tune.run(
     tune.with_parameters(
         train_classifier,
-        min_delta=MIN_DELTA,
-        patience=PATIENCE,
-        max_time=MAX_TIME,
-        tune=True
+        do_tune=True
     ),
     metric="loss",
     mode="min",
     config=config,
     num_samples=NUM_SAMPLES,
-    scheduler=HyperBandForBOHB(),
+    scheduler=scheduler,
     name=RUN_NAME,
     local_dir=RAY_RESULTS_DIR,
-    trial_name_creator=lambda x: pd.Timestamp.today(tz=local_timezone).strftime('%Y-%m-%d_%H.%M'),
-    trial_dirname_creator=lambda x: pd.Timestamp.today(tz=local_timezone).strftime('%Y-%m-%d_%H.%M'),
+    trial_name_creator=get_trial_name,
+    trial_dirname_creator=get_trial_name,
     resume=RESUME,
     resources_per_trial={
-        'gpu': 0,
-        # 'gpu': torch.cuda.device_count(),
-        'cpu': 1
-        # 'cpu': os.cpu_count()
+        'gpu': MAX_GPUS,
+        'cpu': MAX_WORKERS
     },
     search_alg=bohb,
+    progress_reporter=reporter,
 )
