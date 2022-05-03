@@ -22,7 +22,7 @@ class EmoBERT(pl.LightningModule):
         self.weight_decay = config['weight_decay']
         self.lr = config['lr']
         self.optimizer = config['optimizer']
-        self.batch_size_train = config['batch_size_train']
+        self.batch_size_train = int(config['batch_size_train'])
         self.num_workers = config['num_workers']
 
         logging.info('Initializing EmoBERT Model')
