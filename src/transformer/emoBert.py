@@ -26,8 +26,8 @@ class EmoBERT(pl.LightningModule):
         self.num_workers = config['num_workers']
 
         logging.info('Initializing EmoBERT Model')
-        self.base_model = RobertaModel.from_pretrained("roberta-base")
-        self.tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
+        self.base_model = RobertaModel.from_pretrained("distilroberta-base")
+        self.tokenizer = RobertaTokenizer.from_pretrained("distilroberta-base")
         self.dropout = nn.Dropout(config['dropout_prob'])
         self.linear = nn.Linear(
             in_features=self.base_model.config.hidden_size,
