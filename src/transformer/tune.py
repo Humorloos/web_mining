@@ -9,7 +9,7 @@ from ray.tune import CLIReporter
 from ray.tune.suggest.bohb import TuneBOHB
 from ray.tune.schedulers import HyperBandForBOHB
 
-from src.constants.constants import TRANSFORMER_DIR, MAX_BATCH_SIZE, VAL_CHECK_INTERVAL, MAX_EPOCHS
+from src.constants.constants import TRANSFORMER_DIR, MAX_BATCH_SIZE, VAL_CHECK_INTERVAL, MAX_EPOCHS, MAX_GPUS
 from src.transformer.trainClassifier import train_classifier
 
 RAY_RESULTS_DIR = TRANSFORMER_DIR / 'ray_results'
@@ -19,8 +19,6 @@ start_timestamp = pd.Timestamp.today(tz=local_timezone).strftime('%Y-%m-%d_%H.%M
 MIN_DELTA = 0.01  # minimum delta in validation loss for early stopping
 # todo: set this depending on machine (e.g., os.cpu_count())
 MAX_WORKERS = os.cpu_count()
-# todo: set this depending on machine (e.g., torch.cuda.device_count())
-MAX_GPUS = 0
 NUM_SAMPLES = 50
 RUN_NAME = "test"
 # RESUME = 'LOCAL'  # 'LOCAL' resumes at last checkpoint, False starts new trial

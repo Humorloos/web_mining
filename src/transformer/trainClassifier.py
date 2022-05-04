@@ -2,7 +2,7 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
 
-from src.constants.constants import TRANSFORMER_DIR, MAX_EPOCHS, PATIENCE, MIN_DELTA, VAL_CHECK_INTERVAL
+from src.constants.constants import TRANSFORMER_DIR, MAX_EPOCHS, PATIENCE, MIN_DELTA, VAL_CHECK_INTERVAL, MAX_GPUS
 from src.transformer.emoBert import EmoBERT
 
 
@@ -33,7 +33,7 @@ def train_classifier(config, checkpoint_dir=None, do_tune=False):
     trainer = pl.Trainer(
         logger=WandbLogger(save_dir=save_dir, project="web_mining"),
         callbacks=callbacks,
-        gpus=0,
+        gpus=MAX_GPUS,
         max_epochs=MAX_EPOCHS,
         val_check_interval=VAL_CHECK_INTERVAL,
     )
