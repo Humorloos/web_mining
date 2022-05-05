@@ -11,7 +11,7 @@ from transformers import RobertaModel, \
 from transformers.models.roberta.modeling_roberta import RobertaClassificationHead
 
 from src.constants.constants import MAX_BATCH_SIZE, VAL_SET_SIZE
-from src.transformer.datasets.EmoticonTrainValSplit import get_emoticon_train_val_split
+from src.transformer.datasets.TrainValSplit import get_train_val_split
 
 
 class EmoBERT(pl.LightningModule):
@@ -37,7 +37,7 @@ class EmoBERT(pl.LightningModule):
         self.accuracy = torchmetrics.Accuracy()
 
         logging.info('Loading training dataset')
-        self.train_set, self.val_set = get_emoticon_train_val_split()
+        self.train_set, self.val_set = get_train_val_split(config['data_source'])
 
     def train_dataloader(self):
         return DataLoader(dataset=self.train_set,

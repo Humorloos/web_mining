@@ -6,6 +6,7 @@ from src.constants.constants import MAX_WORKERS
 from src.transformer.trainClassifier import train_classifier
 
 config = {
+    'data_source': 'crawl',
     'batch_size_train': 16,
     'num_workers': MAX_WORKERS,
     'optimizer': torch.optim.AdamW,
