@@ -23,6 +23,7 @@ RUN_NAME = "test"
 RESUME = False  # 'LOCAL' resumes at last checkpoint, False starts new trial
 
 config = {
+    'data_source': 'crawl',
     'batch_size_train': tune.qloguniform(2, MAX_BATCH_SIZE, q=1),
     'num_workers': MAX_WORKERS,
     'optimizer': torch.optim.AdamW,
