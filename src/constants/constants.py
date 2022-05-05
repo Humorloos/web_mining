@@ -1,3 +1,4 @@
+import os
 from math import ceil
 from pathlib import Path
 
@@ -21,3 +22,5 @@ MAX_BATCH_SIZE = 16
 VAL_CHECK_INTERVAL = 1 / (ceil(1 / (10 * VAL_SET_SIZE / TRAIN_SET_SIZE)))
 # todo: set this depending on machine (e.g., torch.cuda.device_count())
 MAX_GPUS = 0
+# todo: set this depending on machine (e.g., os.cpu_count())
+MAX_WORKERS = os.cpu_count()

@@ -2,11 +2,12 @@
 
 import torch
 
+from src.constants.constants import MAX_WORKERS
 from src.transformer.trainClassifier import train_classifier
 
 config = {
     'batch_size_train': 16,
-    'num_workers': 1,
+    'num_workers': MAX_WORKERS,
     'optimizer': torch.optim.AdamW,
     'lr': 1e-2,
     'weight_decay': 1e-3,
