@@ -15,8 +15,7 @@ def train_classifier(config, checkpoint_dir=None, do_tune=False, fine_tune=True)
 
     if not fine_tune:
         # freeze base model (for testing)
-        for param in model.base_model.parameters():
-            param.requires_grad = False
+        model.base_model.freeze_model()
 
     save_dir = TRANSFORMER_DIR / 'trials'
 

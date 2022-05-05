@@ -23,7 +23,7 @@ RUN_NAME = "test"
 RESUME = False  # 'LOCAL' resumes at last checkpoint, False starts new trial
 
 config = {
-    'batch_size_train': tune.qloguniform(8, MAX_BATCH_SIZE, q=1),
+    'batch_size_train': tune.qloguniform(2, MAX_BATCH_SIZE, q=1),
     'num_workers': MAX_WORKERS,
     'optimizer': torch.optim.AdamW,
     'lr': tune.loguniform(1e-4, 1e-1),
