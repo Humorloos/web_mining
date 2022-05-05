@@ -24,3 +24,4 @@ VAL_CHECK_INTERVAL = 1 / (ceil(1 / (10 * VAL_SET_SIZE / TRAIN_SET_SIZE)))
 MAX_GPUS = 0
 # todo: set this depending on machine (e.g., os.cpu_count())
 MAX_WORKERS = 1
+ADAPTER_NAME = 'classification'
