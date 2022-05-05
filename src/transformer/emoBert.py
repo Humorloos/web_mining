@@ -8,6 +8,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from transformers import RobertaModel, \
     RobertaTokenizer
+from transformers.models.roberta.modeling_roberta import RobertaClassificationHead
 
 from src.constants.constants import MAX_BATCH_SIZE, VAL_SET_SIZE
 from src.transformer.datasets.EmoticonTrainValSplit import get_emoticon_train_val_split
@@ -28,10 +29,9 @@ class EmoBERT(pl.LightningModule):
         logging.info('Initializing EmoBERT Model')
         self.base_model = RobertaModel.from_pretrained("distilroberta-base")
         self.tokenizer = RobertaTokenizer.from_pretrained("distilroberta-base")
-        self.dropout = nn.Dropout(config['dropout_prob'])
-        self.linear = nn.Linear(
-            in_features=self.base_model.config.hidden_size,
-            out_features=1)
+        self.base_model.config.num_labels = 1
+        self.base_model.config.hidden_dropout_prob = config['dropout_prob']
+        self.classifier = RobertaClassificationHead(self.base_model.config)
         self.sigmoid = nn.Sigmoid()
         self.loss = nn.BCELoss()
         self.accuracy = torchmetrics.Accuracy()
@@ -56,10 +56,10 @@ class EmoBERT(pl.LightningModule):
                           pin_memory=True)
 
     def forward(self, batch):
-        embeddings = self.base_model(**batch).pooler_output
-        hidden = self.dropout(embeddings)
-        activation = torch.ravel(self.linear(hidden))
-        return self.sigmoid(activation)
+        embeddings = self.base_model(**batch).last_hidden_state
+        activation = self.classifier(embeddings)
+        y_hat = self.sigmoid(activation)
+        return torch.ravel(y_hat)
 
     def training_step(self, batch, batch_idx):
         tokens, y = batch
