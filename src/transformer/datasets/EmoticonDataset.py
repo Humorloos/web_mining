@@ -13,5 +13,6 @@ class EmoticonDataset:
             header=None,
             names=['polarity', 'id', 'date', 'query', 'user', 'text']
         )[['text', 'polarity']]
+        self.data = self.data.loc[self.data['polarity'] != 2]
         # set polarity 4 to 1 to get probability vector
         self.data.loc[self.data['polarity'] == 4, 'polarity'] = 1

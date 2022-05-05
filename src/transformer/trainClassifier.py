@@ -1,17 +1,31 @@
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
+from transformers.adapters.configuration import AdapterConfig
 
-from src.constants.constants import TRANSFORMER_DIR, MAX_EPOCHS, PATIENCE, MIN_DELTA, VAL_CHECK_INTERVAL, MAX_GPUS
+from src.constants.constants import TRANSFORMER_DIR, MAX_EPOCHS, PATIENCE, MIN_DELTA, VAL_CHECK_INTERVAL, MAX_GPUS, \
+    ADAPTER_NAME
 from src.transformer.emoBert import EmoBERT
 
 
-def train_classifier(config, checkpoint_dir=None, do_tune=False):
+def train_classifier(config, checkpoint_dir=None, do_tune=False, fine_tune=True):
     # initialize model
     if checkpoint_dir:
         model = EmoBERT.load_from_checkpoint(checkpoint_dir / "checkpoint")
     else:
         model = EmoBERT(config=config)
+
+    if not fine_tune:
+        # freeze base model (for testing)
+        model.base_model.freeze_model()
+    elif fine_tune == 'adapter':
+        # add adapter to base model
+        adapter_config = AdapterConfig.load(
+            config='pfeiffer',
+            non_linearity='relu',
+        )
+        model.base_model.add_adapter(ADAPTER_NAME, config=adapter_config)
+        model.base_model.train_adapter(ADAPTER_NAME)
 
     save_dir = TRANSFORMER_DIR / 'trials'
 
@@ -20,7 +34,9 @@ def train_classifier(config, checkpoint_dir=None, do_tune=False):
         monitor='ptl/val_loss',
         min_delta=MIN_DELTA,
         patience=PATIENCE,
-        verbose=True)]
+        verbose=True,
+        # run check in each validation, not after training epoch
+        check_on_train_epoch_end=False)]
     if do_tune:
         from ray import tune
         from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
