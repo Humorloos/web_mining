@@ -6,12 +6,17 @@ from src.constants.constants import TRANSFORMER_DIR, MAX_EPOCHS, PATIENCE, MIN_D
 from src.transformer.emoBert import EmoBERT
 
 
-def train_classifier(config, checkpoint_dir=None, do_tune=False):
+def train_classifier(config, checkpoint_dir=None, do_tune=False, fine_tune=True):
     # initialize model
     if checkpoint_dir:
         model = EmoBERT.load_from_checkpoint(checkpoint_dir / "checkpoint")
     else:
         model = EmoBERT(config=config)
+
+    if not fine_tune:
+        # freeze base model (for testing)
+        for param in model.base_model.parameters():
+            param.requires_grad = False
 
     save_dir = TRANSFORMER_DIR / 'trials'
 

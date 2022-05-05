@@ -15,4 +15,4 @@ config = {
 }
 
 if __name__ == '__main__':
-    train_classifier(config)
+    train_classifier(config, fine_tune=False)

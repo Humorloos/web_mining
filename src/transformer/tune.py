@@ -58,7 +58,8 @@ def get_trial_name(trial):
 analysis = tune.run(
     tune.with_parameters(
         train_classifier,
-        do_tune=True
+        do_tune=True,
+        fine_tune=False
     ),
     metric="loss",
     mode="min",
