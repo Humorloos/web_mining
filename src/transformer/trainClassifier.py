@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
@@ -11,7 +13,9 @@ from src.transformer.emoBert import EmoBERT
 def train_classifier(config, checkpoint_dir=None, do_tune=False, fine_tune=True):
     # initialize model
     if checkpoint_dir:
-        model = EmoBERT.load_from_checkpoint(checkpoint_dir / "checkpoint")
+        # when using ray-tune and resuming training of a previously stopped model, load the model again from the
+        # checkpoint provided by ray-tune
+        model = EmoBERT.load_from_checkpoint(str(Path(checkpoint_dir) / "checkpoint"))
     else:
         model = EmoBERT(config=config)
 
