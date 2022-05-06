@@ -16,7 +16,6 @@ RAY_RESULTS_DIR = TRANSFORMER_DIR / 'ray_results'
 
 local_timezone = datetime.now(timezone(timedelta(0))).astimezone().tzinfo
 start_timestamp = pd.Timestamp.today(tz=local_timezone).strftime('%Y-%m-%d_%H.%M')
-MIN_DELTA = 0.01  # minimum delta in validation loss for early stopping
 NUM_SAMPLES = 50
 RUN_NAME = "test"
 # RESUME = 'LOCAL'  # 'LOCAL' resumes at last checkpoint, False starts new trial
