@@ -18,7 +18,7 @@ def get_train_val_split(source):
     elif source == 'crawl':
         data = pd.concat([
             pd.read_csv(DATA_DIR / 'crawled_tweets' / f'{filename}.csv')
-            for filename in ['pos_tweets_590k', 'neg_tweets_600k']
+            for filename in ['pos_tweets_590k', 'neg_tweets_600k', 'new_pos_tweets_490k', 'new_neg_tweets_560k']
         ])[['prep_text', 'sentiment']] \
             .rename(columns={'prep_text': 'text', 'sentiment': 'polarity'})
     else:

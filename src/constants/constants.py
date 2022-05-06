@@ -6,7 +6,7 @@ TRANSFORMER_DIR = DATA_DIR / 'transformer'
 
 # transformer training config
 # todo: set this according to dataset size
-COMPLETE_DATA_SIZE = 1197757  # size of training + validation set (before split) (1197757 for full crawled set)
+COMPLETE_DATA_SIZE = 2245661  # size of training + validation set (before split) (2245661 for full crawled set)
 VAL_SET_SIZE = 1000  # size of validation set
 TRAIN_SET_SIZE = COMPLETE_DATA_SIZE - VAL_SET_SIZE  # size of training set
 # todo: figure out best MAX_EPOCHS value (e.g., by training one example model until convergence and looking how many
