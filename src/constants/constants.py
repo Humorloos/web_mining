@@ -1,6 +1,8 @@
 from math import ceil
 from pathlib import Path
 
+import torch
+
 DATA_DIR = Path(__file__).parent.parent.parent / 'data'
 TRANSFORMER_DIR = DATA_DIR / 'transformer'
 
@@ -24,3 +26,12 @@ MAX_GPUS = 0
 # todo: set this depending on machine (e.g., os.cpu_count())
 MAX_WORKERS = 1
 ADAPTER_NAME = 'classification'
+DEFAULT_CONFIG = {
+    'data_source': 'crawl',
+    'batch_size_train': 16,
+    'num_workers': MAX_WORKERS,
+    'optimizer': torch.optim.AdamW,
+    'lr': 1e-2,
+    'weight_decay': 1e-3,
+    'dropout_prob': 0.5,
+}

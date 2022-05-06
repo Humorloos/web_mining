@@ -4,19 +4,23 @@ import pandas as pd
 import pytorch_lightning as pl
 import torch
 import torchmetrics
+from pytorch_lightning.utilities.types import EPOCH_OUTPUT
 from torch import nn
 from torch.utils.data import DataLoader
 from transformers import RobertaModel, \
     RobertaTokenizer
 from transformers.models.roberta.modeling_roberta import RobertaClassificationHead
 
-from src.constants.constants import MAX_BATCH_SIZE, VAL_SET_SIZE
+from src.constants.constants import MAX_BATCH_SIZE, VAL_SET_SIZE, DEFAULT_CONFIG
 from src.transformer.datasets.TrainValSplit import get_train_val_split
 
 
 class EmoBERT(pl.LightningModule):
-    def __init__(self, config):
+    def __init__(self, config=None):
         super().__init__()
+
+        if config is None:
+            config = DEFAULT_CONFIG
 
         self.batch_size_val = min(MAX_BATCH_SIZE, VAL_SET_SIZE)
 
@@ -76,11 +80,21 @@ class EmoBERT(pl.LightningModule):
         accuracy = self.accuracy(y_hat, y.int())
         return {'loss': loss, 'accuracy': accuracy}
 
+    def test_step(self, batch, batch_idx):
+        tokens, y = batch
+        y_hat = self(tokens)
+        accuracy = self.accuracy(y_hat, y.int())
+        return {'accuracy': accuracy}
+
     def validation_epoch_end(self, outputs):
         avg_loss = torch.stack([x["loss"] for x in outputs]).mean()
         self.log("ptl/val_loss", avg_loss)
         avg_accuracy = torch.stack([x["accuracy"] for x in outputs]).mean()
         self.log("ptl/val_accuracy", avg_accuracy)
+
+    def test_epoch_end(self, outputs: EPOCH_OUTPUT) -> None:
+        avg_accuracy = torch.stack([x["accuracy"] for x in outputs]).mean()
+        self.log("accuracy", avg_accuracy)
 
     def configure_optimizers(self):
         return self.optimizer(params=self.parameters(),
