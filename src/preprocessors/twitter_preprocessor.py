@@ -22,6 +22,8 @@ NEUTRAL_EMOJIS = [i for i in list(
 
 
 class TwitterPreprocessor:
+    def __init__(self) -> None:
+        self.lemmatizer = WordNetLemmatizer()
     def remove_repetitions(self, word: str):
         # replace 2+ letters with 2 letters
         # huuuuuuungry -> huungry
@@ -41,7 +43,7 @@ class TwitterPreprocessor:
         return tweet
 
     def is_valid_word(self, word: str):
-        return re.search(r"^[a-zA-Z][a-z0-9A-Z\._]*$", word) is not None
+        return re.search(r"^[a-z0-9A-Z][a-z0-9A-Z\._]*$", word) is not None
 
     def get_pos(self, word: str):
         # get POS tag of a word
@@ -52,10 +54,9 @@ class TwitterPreprocessor:
 
     def lemmatize(self, word: str):
         # lemmatize word depending on POS tag
-        lemmatizer = WordNetLemmatizer()
-        return lemmatizer.lemmatize(word, pos=self.get_pos(word))
+        return self.lemmatizer.lemmatize(word, pos=self.get_pos(word))
 
-    def preprocess_tweet(self, tweet: str):
+    def preprocess_tweet(self, tweet: str, lemmatize=True):
         preprocessed_tweet = []
 
         # remove emoticons
@@ -80,7 +81,7 @@ class TwitterPreprocessor:
 
         for word in tweet.split():
             # remove punctuation
-            word = word.strip("!\"\#$%()*+,./:;<=>?@[\]^_`{|}~")
+            word = word.strip("!\"\#$%()*+,./:;<=>?@[\]^_`{|}~…‘’“”«»¿×～")
             # remove repetitions
             word = self.remove_repetitions(word)
             # remove further punctuations
@@ -89,7 +90,8 @@ class TwitterPreprocessor:
             # check if word valid
             if self.is_valid_word(word):
                 # lemmatize word
-                word = self.lemmatize(word)
+                if lemmatize==True:
+                    word = self.lemmatize(word)
                 preprocessed_tweet.append(word)
 
         return " ".join(preprocessed_tweet)
@@ -100,14 +102,21 @@ if __name__ == "__main__":
     # command line args
     tweets_file = sys.argv[1]
     preprocessed_file = sys.argv[2]
+    lemmatize=sys.argv[3]
+    if lemmatize=="y":
+        lemmatize=True
+    elif lemmatize=="n":
+        lemmatize=False
+    else:
+        sys.exit(f'wrong lemmatize argument provided: {lemmatize}. provide either "y"=yes or "n"=no')
     # read in tweets csv
     df = pd.read_csv(tweets_file, engine="python",
-                     delimiter=",", usecols=["full_text"])
+                     delimiter=",", usecols=["full_text","sentiment"])
     # apply preprocessing
     # save preprocessed tweets as pandas series
     preprocessed_text = df["full_text"].progress_apply(
-        lambda x: twitter_processor.preprocess_tweet(x))
+        lambda x: twitter_processor.preprocess_tweet(x, lemmatize=lemmatize))
     # insert series into dataframe
-    df.insert(2, "prep_text", preprocessed_text)
+    df.insert(1, "prep_text", preprocessed_text)
     # write series to pickle file
     df.to_csv(preprocessed_file, index=False, quoting=csv.QUOTE_ALL)
