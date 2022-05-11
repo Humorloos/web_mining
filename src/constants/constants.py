@@ -8,7 +8,7 @@ TRANSFORMER_DIR = DATA_DIR / 'transformer'
 
 # transformer training config
 # todo: set this according to dataset size
-COMPLETE_DATA_SIZE = 2245661  # size of training + validation set (before split) (2245661 for full crawled set)
+COMPLETE_DATA_SIZE = 2169661  # size of training + validation set (before split) (2169661 for full 'premade' set)
 VAL_SET_SIZE = 1000  # size of validation set
 TRAIN_SET_SIZE = COMPLETE_DATA_SIZE - VAL_SET_SIZE  # size of training set
 # todo: figure out best MAX_EPOCHS value (e.g., by training one example model until convergence and looking how many
@@ -27,7 +27,7 @@ MAX_GPUS = 0
 MAX_WORKERS = 1
 ADAPTER_NAME = 'classification'
 DEFAULT_CONFIG = {
-    'data_source': 'crawl',
+    'data_source': 'premade',
     'batch_size_train': 16,
     'num_workers': MAX_WORKERS,
     'optimizer': torch.optim.AdamW,
