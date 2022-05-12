@@ -15,7 +15,7 @@ def read_sentiment_words_dict(file: str):
         return words
 
 
-def apply_baseline(tweet: str):
+def apply_baseline(tweet: str, word_count=False):
     tweet = tweet.strip()
     words = tweet.split()
     negative_count, positive_count = 0, 0
@@ -26,10 +26,18 @@ def apply_baseline(tweet: str):
             positive_count += 1
         else:
             pass
+    data_dict={"negative_count": negative_count, "positive_count": positive_count, "baseline": None}
     if negative_count > positive_count:
-        return int(0)
+        data_dict["baseline"]=int(0)
     else:
-        return int(1)
+        data_dict["baseline"]=int(1)
+    # return baseline values
+    if word_count == False:
+        return data_dict["baseline"]
+    elif word_count == True:
+        return data_dict
+    else:
+        pass
 
 
 NEGATIVE_WORDS = read_sentiment_words_dict("src/baseline/data/negative_words.txt")
