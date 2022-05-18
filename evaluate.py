@@ -6,7 +6,7 @@ from src.transformer.emoBert import EmoBERT
 
 TRIAL_DIR_NAME = '2022-05-06_12.13_255b1c85'  # name of model's ray-tune trial
 CHECKPOINT_DIR_NAME = 'checkpoint_epoch=1-step=4'  # name of model's checkpoint
-DATA_SOURCE = 'sst2'  # dataset to use for evaluation (one of 'sst2', 'original', or 'premade')
+DATA_SOURCE = 'premade'  # dataset to use for evaluation (one of 'sst2', 'original', or 'premade')
 
 if __name__ == '__main__':
     model = EmoBERT.load_from_checkpoint(
