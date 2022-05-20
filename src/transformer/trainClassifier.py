@@ -39,13 +39,15 @@ def train_classifier(config, checkpoint_dir=None, do_tune=False, fine_tune=True)
     save_dir = TRANSFORMER_DIR / 'trials'
 
     # callbacks
-    callbacks = [EarlyStopping(
-        monitor='ptl/val_loss',
-        min_delta=MIN_DELTA,
-        patience=PATIENCE,
-        verbose=True,
-        # run check in each validation, not after training epoch
-        check_on_train_epoch_end=False)]
+    callbacks = [
+        # EarlyStopping(
+        #     monitor='ptl/val_loss',
+        #     min_delta=MIN_DELTA,
+        #     patience=PATIENCE,
+        #     verbose=True,
+        #     # run check in each validation, not after training epoch
+        #     check_on_train_epoch_end=False)
+    ]
     if do_tune:
         from ray import tune
         from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
