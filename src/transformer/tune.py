@@ -1,7 +1,5 @@
 """Script for hyperparameter optimization"""
-from datetime import timedelta, datetime, timezone
 
-import pandas as pd
 import torch
 from ray import tune
 from ray.tune import CLIReporter
@@ -10,13 +8,12 @@ from ray.tune.schedulers import HyperBandForBOHB
 
 from constants import TRANSFORMER_DIR, MAX_BATCH_SIZE, VAL_CHECK_INTERVAL, MAX_EPOCHS, MAX_GPUS, MAX_WORKERS
 from trainClassifier import train_classifier
+from utils import get_timestamp
 
 RAY_RESULTS_DIR = TRANSFORMER_DIR / 'ray_results'
 
-local_timezone = datetime.now(timezone(timedelta(0))).astimezone().tzinfo
-start_timestamp = pd.Timestamp.today(tz=local_timezone).strftime('%Y-%m-%d_%H.%M')
 NUM_SAMPLES = 50
-RUN_NAME = "test"
+RUN_NAME = get_timestamp()
 # RESUME = 'LOCAL'  # 'LOCAL' resumes at last checkpoint, False starts new trial
 RESUME = False  # 'LOCAL' resumes at last checkpoint, False starts new trial
 
@@ -50,8 +47,7 @@ scheduler = HyperBandForBOHB(
 
 def get_trial_name(trial):
     """Function for generating trial names"""
-    return f"{pd.Timestamp.today(tz=local_timezone).strftime('%Y-%m-%d_%H.%M')}_{trial.trial_id}"
-
+    return f"{get_timestamp()}_{trial.trial_id}"
 
 # run hyperparameter optimization
 analysis = tune.run(
