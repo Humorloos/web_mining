@@ -1,7 +1,7 @@
+import logging
 from pathlib import Path
 
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
 from transformers.adapters.configuration import AdapterConfig
 
@@ -13,10 +13,12 @@ from src.transformer.emoBert import EmoBERT
 def train_classifier(config, checkpoint_dir=None, do_tune=False, fine_tune=True):
     # initialize model
     if checkpoint_dir:
+        logging.info(f'Loading model from checkpoint {checkpoint_dir}')
         # when using ray-tune and resuming training of a previously stopped model, load the model again from the
         # checkpoint provided by ray-tune
         model = EmoBERT.load_from_checkpoint(str(Path(checkpoint_dir) / "checkpoint"))
     else:
+        logging.info('Instantiating new EmoBERT model')
         model = EmoBERT(config=config)
         if fine_tune == 'adapter':
             # add adapter to base model
@@ -52,6 +54,7 @@ def train_classifier(config, checkpoint_dir=None, do_tune=False, fine_tune=True)
             on='validation_end'))
         save_dir = tune.get_trial_dir()
 
+    logging.info('Instantiating trainer')
     # train model
     trainer = pl.Trainer(
         logger=WandbLogger(save_dir=save_dir, project="web_mining"),
@@ -60,4 +63,6 @@ def train_classifier(config, checkpoint_dir=None, do_tune=False, fine_tune=True)
         max_epochs=MAX_EPOCHS,
         val_check_interval=VAL_CHECK_INTERVAL,
     )
+
+    logging.info('Starting model training')
     trainer.fit(model)
