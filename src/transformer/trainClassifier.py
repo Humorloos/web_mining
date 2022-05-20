@@ -18,17 +18,20 @@ def train_classifier(config, checkpoint_dir=None, do_tune=False, fine_tune=True)
         model = EmoBERT.load_from_checkpoint(str(Path(checkpoint_dir) / "checkpoint"))
     else:
         model = EmoBERT(config=config)
+        if fine_tune == 'adapter':
+            # add adapter to base model
+            adapter_config = AdapterConfig.load(
+                config='pfeiffer',
+                non_linearity='relu',
+            )
+            model.base_model.add_adapter(ADAPTER_NAME, config=adapter_config)
 
     if not fine_tune:
+        logging.info('Training only the classification head')
         # freeze base model (for testing)
         model.base_model.freeze_model()
     elif fine_tune == 'adapter':
-        # add adapter to base model
-        adapter_config = AdapterConfig.load(
-            config='pfeiffer',
-            non_linearity='relu',
-        )
-        model.base_model.add_adapter(ADAPTER_NAME, config=adapter_config)
+        logging.info('Training the model\'s Pfeiffer Adapter')
         model.base_model.train_adapter(ADAPTER_NAME)
 
     save_dir = TRANSFORMER_DIR / 'trials'
