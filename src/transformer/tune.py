@@ -26,7 +26,7 @@ config = {
     'batch_size_train': tune.qloguniform(2, MAX_BATCH_SIZE, q=1),
     'num_workers': MAX_WORKERS,
     'optimizer': torch.optim.AdamW,
-    'lr': tune.loguniform(1e-4, 1e-1),
+    'lr': tune.loguniform(1e-6, 1e-1),
     'weight_decay': tune.loguniform(1e-7, 1e-1),
     'dropout_prob': tune.uniform(0.1, 0.5),
 }
