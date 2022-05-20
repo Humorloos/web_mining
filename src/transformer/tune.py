@@ -16,7 +16,7 @@ RAY_RESULTS_DIR = TRANSFORMER_DIR / 'ray_results'
 
 local_timezone = datetime.now(timezone(timedelta(0))).astimezone().tzinfo
 start_timestamp = pd.Timestamp.today(tz=local_timezone).strftime('%Y-%m-%d_%H.%M')
-NUM_SAMPLES = 1
+NUM_SAMPLES = 50
 RUN_NAME = "test"
 # RESUME = 'LOCAL'  # 'LOCAL' resumes at last checkpoint, False starts new trial
 RESUME = False  # 'LOCAL' resumes at last checkpoint, False starts new trial
@@ -30,7 +30,6 @@ config = {
     'weight_decay': tune.loguniform(1e-7, 1e-1),
     'dropout_prob': tune.uniform(0.1, 0.5),
 }
-
 
 # Reporter for reporting progress in command line
 reporter = CLIReporter(
