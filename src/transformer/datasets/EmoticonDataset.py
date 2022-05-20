@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from src.constants.constants import DATA_DIR
+from constants import DATA_DIR
 
 
 class EmoticonDataset:

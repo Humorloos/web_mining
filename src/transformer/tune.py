@@ -8,9 +8,8 @@ from ray.tune import CLIReporter
 from ray.tune.suggest.bohb import TuneBOHB
 from ray.tune.schedulers import HyperBandForBOHB
 
-from src.constants.constants import TRANSFORMER_DIR, MAX_BATCH_SIZE, VAL_CHECK_INTERVAL, MAX_EPOCHS, MAX_GPUS, \
-    MAX_WORKERS
-from src.transformer.trainClassifier import train_classifier
+from constants import TRANSFORMER_DIR, MAX_BATCH_SIZE, VAL_CHECK_INTERVAL, MAX_EPOCHS, MAX_GPUS, MAX_WORKERS
+from trainClassifier import train_classifier
 
 RAY_RESULTS_DIR = TRANSFORMER_DIR / 'ray_results'
 

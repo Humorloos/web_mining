@@ -11,8 +11,8 @@ from transformers import RobertaModel, \
     RobertaTokenizer
 from transformers.models.roberta.modeling_roberta import RobertaClassificationHead
 
-from src.constants.constants import MAX_BATCH_SIZE, VAL_SET_SIZE, DEFAULT_CONFIG
-from src.transformer.datasets.TrainValSplit import get_train_val_split
+from constants import MAX_BATCH_SIZE, VAL_SET_SIZE, DEFAULT_CONFIG
+from datasets.TrainValSplit import get_train_val_split
 
 
 class EmoBERT(pl.LightningModule):

@@ -1,11 +1,11 @@
 import pandas as pd
 from torch.utils.data import DataLoader
 
-from src.constants.constants import MAX_BATCH_SIZE, MAX_WORKERS, DATA_DIR
-from src.transformer.datasets.EmoBertDataset import EmoBertDataset
-from src.transformer.datasets.EmoticonDataset import EmoticonDataset
-from src.transformer.datasets.SST2TestSet import get_sst2_test_set
-from src.transformer.emoBert import EmoBERT
+from constants import MAX_BATCH_SIZE, MAX_WORKERS, DATA_DIR
+from datasets.EmoBertDataset import EmoBertDataset
+from datasets.EmoticonDataset import EmoticonDataset
+from datasets.SST2TestSet import get_sst2_test_set
+from emoBert import EmoBERT
 
 
 def get_test_dataloader(model: EmoBERT, source: str):

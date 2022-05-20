@@ -5,9 +5,9 @@ import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
 from transformers.adapters.configuration import AdapterConfig
 
-from src.constants.constants import TRANSFORMER_DIR, MAX_EPOCHS, PATIENCE, MIN_DELTA, VAL_CHECK_INTERVAL, MAX_GPUS, \
+from constants import TRANSFORMER_DIR, MAX_EPOCHS, VAL_CHECK_INTERVAL, MAX_GPUS, \
     ADAPTER_NAME
-from src.transformer.emoBert import EmoBERT
+from emoBert import EmoBERT
 
 
 def train_classifier(config, checkpoint_dir=None, do_tune=False, fine_tune=True):

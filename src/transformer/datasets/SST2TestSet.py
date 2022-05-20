@@ -1,7 +1,7 @@
 import pandas as pd
 
-from src.constants.constants import DATA_DIR
-from src.transformer.datasets.EmoBertDataset import EmoBertDataset
+from constants import DATA_DIR
+from datasets.EmoBertDataset import EmoBertDataset
 
 SST2_DIR = DATA_DIR / 'sst2'
 

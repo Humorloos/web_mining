@@ -1,9 +1,9 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from src.constants.constants import DATA_DIR, COMPLETE_DATA_SIZE, VAL_SET_SIZE
-from src.transformer.datasets.EmoBertDataset import EmoBertDataset
-from src.transformer.datasets.EmoticonDataset import EmoticonDataset
+from constants import DATA_DIR, COMPLETE_DATA_SIZE, VAL_SET_SIZE
+from datasets.EmoBertDataset import EmoBertDataset
+from datasets.EmoticonDataset import EmoticonDataset
 
 
 def get_train_val_split(source):
