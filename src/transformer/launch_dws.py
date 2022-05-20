@@ -24,7 +24,7 @@ while True:
     gpu_data.memory = gpu_data.memory.str.rstrip(' MiB').astype('int32')
     # For training on GPU with largest free memory
     target_gpu = gpu_data.sort_values(by='memory', ascending=False).index[0]
-    logging.info(f'Starting training on GPU f{target_gpu}')
+    logging.info(f'Starting training on GPU {target_gpu}')
     os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
     os.environ['CUDA_VISIBLE_DEVICES'] = str(target_gpu)
     try:
