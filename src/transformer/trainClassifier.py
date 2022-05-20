@@ -3,11 +3,10 @@ from pathlib import Path
 
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
-from transformers.adapters.configuration import AdapterConfig
 
-from constants import TRANSFORMER_DIR, MAX_EPOCHS, VAL_CHECK_INTERVAL, MAX_GPUS, \
-    ADAPTER_NAME
+from constants import TRANSFORMER_DIR, MAX_EPOCHS, VAL_CHECK_INTERVAL, MAX_GPUS
 from emoBert import EmoBERT
+from utils import get_timestamp
 
 
 def train_classifier(config, checkpoint_dir=None, do_tune=False):
@@ -40,16 +39,21 @@ def train_classifier(config, checkpoint_dir=None, do_tune=False):
             {'loss': 'ptl/val_loss', 'accuracy': 'ptl/val_accuracy'},
             on='validation_end'))
         save_dir = tune.get_trial_dir()
+        wandb_logger = WandbLogger(
+            name=tune.get_trial_name(), save_dir=save_dir, id=tune.get_trial_id(), project="web_mining", log_model=True,
+            config=config)
+    else:
+        wandb_logger = WandbLogger(
+            name=get_timestamp(), save_dir=save_dir, project="web_mining", log_model=True, config=config)
 
     logging.info('Instantiating trainer')
     # train model
     trainer = pl.Trainer(
-        logger=WandbLogger(save_dir=save_dir, project="web_mining"),
+        logger=wandb_logger,
         callbacks=callbacks,
         gpus=MAX_GPUS,
         max_epochs=MAX_EPOCHS,
         val_check_interval=VAL_CHECK_INTERVAL,
     )
-
     logging.info('Starting model training')
     trainer.fit(model)
