@@ -10,7 +10,7 @@ from constants import TRANSFORMER_DIR, MAX_EPOCHS, VAL_CHECK_INTERVAL, MAX_GPUS,
 from emoBert import EmoBERT
 
 
-def train_classifier(config, checkpoint_dir=None, do_tune=False, fine_tune=True):
+def train_classifier(config, checkpoint_dir=None, do_tune=False):
     # initialize model
     if checkpoint_dir:
         logging.info(f'Loading model from checkpoint {checkpoint_dir}')
@@ -20,21 +20,6 @@ def train_classifier(config, checkpoint_dir=None, do_tune=False, fine_tune=True)
     else:
         logging.info('Instantiating new EmoBERT model')
         model = EmoBERT(config=config)
-        if fine_tune == 'adapter':
-            # add adapter to base model
-            adapter_config = AdapterConfig.load(
-                config='pfeiffer',
-                non_linearity='relu',
-            )
-            model.base_model.add_adapter(ADAPTER_NAME, config=adapter_config)
-
-    if not fine_tune:
-        logging.info('Training only the classification head')
-        # freeze base model (for testing)
-        model.base_model.freeze_model()
-    elif fine_tune == 'adapter':
-        logging.info('Training the model\'s Pfeiffer Adapter')
-        model.base_model.train_adapter(ADAPTER_NAME)
 
     save_dir = TRANSFORMER_DIR / 'trials'
 

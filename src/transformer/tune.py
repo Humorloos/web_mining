@@ -21,6 +21,7 @@ RUN_NAME = "test"
 RESUME = False  # 'LOCAL' resumes at last checkpoint, False starts new trial
 
 config = {
+    'fine_tune': 'adapter',
     'data_source': 'premade',
     'batch_size_train': tune.qloguniform(2, MAX_BATCH_SIZE, q=1),
     'num_workers': MAX_WORKERS,
@@ -56,8 +57,7 @@ def get_trial_name(trial):
 analysis = tune.run(
     tune.with_parameters(
         train_classifier,
-        do_tune=True,
-        fine_tune='adapter'
+        do_tune=True
     ),
     metric="loss",
     mode="min",

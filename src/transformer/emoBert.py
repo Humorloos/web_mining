@@ -9,9 +9,10 @@ from torch import nn
 from torch.utils.data import DataLoader
 from transformers import RobertaModel, \
     RobertaTokenizer
+from transformers.adapters.configuration import AdapterConfig
 from transformers.models.roberta.modeling_roberta import RobertaClassificationHead
 
-from constants import MAX_BATCH_SIZE, VAL_SET_SIZE, DEFAULT_CONFIG
+from constants import MAX_BATCH_SIZE, VAL_SET_SIZE, DEFAULT_CONFIG, ADAPTER_NAME
 from datasets.TrainValSplit import get_train_val_split
 
 
@@ -42,6 +43,20 @@ class EmoBERT(pl.LightningModule):
 
         logging.info('Loading training dataset')
         self.train_set, self.val_set = get_train_val_split(config['data_source'])
+
+        if not config['fine_tune']:
+            logging.info('Training only the classification head')
+            # freeze base model (for testing)
+            self.base_model.freeze_model()
+        elif config['fine_tune'] == 'adapter':
+            # add adapter to base model
+            adapter_config = AdapterConfig.load(
+                config='pfeiffer',
+                non_linearity='relu',
+            )
+            self.base_model.add_adapter(ADAPTER_NAME, config=adapter_config)
+            logging.info('Training the model\'s Pfeiffer Adapter')
+            self.base_model.train_adapter(ADAPTER_NAME)
 
     def train_dataloader(self):
         return DataLoader(dataset=self.train_set,

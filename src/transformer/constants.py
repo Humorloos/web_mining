@@ -27,6 +27,7 @@ MAX_GPUS = 1
 MAX_WORKERS = 8
 ADAPTER_NAME = 'classification'
 DEFAULT_CONFIG = {
+    'fine_tune': 'adapter',
     'data_source': 'premade',  # one of 'original', 'crawl', or 'premade'
     'batch_size_train': MAX_BATCH_SIZE,
     'num_workers': MAX_WORKERS,
