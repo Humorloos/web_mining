@@ -58,7 +58,7 @@ analysis = tune.run(
     tune.with_parameters(
         train_classifier,
         do_tune=True,
-        fine_tune=False
+        fine_tune='adapter'
     ),
     metric="loss",
     mode="min",
