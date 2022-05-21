@@ -22,15 +22,15 @@ MAX_BATCH_SIZE = 128
 # formula computes interval so that epoch is evenly split
 VAL_CHECK_INTERVAL = 1 / (ceil(1 / (10 * VAL_SET_SIZE / TRAIN_SET_SIZE)))
 # todo: set this depending on machine (e.g., torch.cuda.device_count())
-MAX_GPUS = 1
+TARGET_GPUS = [2, 3, 4, 5, 6, 7]
 # todo: set this depending on machine (e.g., os.cpu_count())
-MAX_WORKERS = 8
+WORKERS_PER_TRIAL = 12
 ADAPTER_NAME = 'classification'
 DEFAULT_CONFIG = {
     'fine_tune': 'adapter',
     'data_source': 'premade',  # one of 'original', 'crawl', or 'premade'
     'batch_size_train': MAX_BATCH_SIZE,
-    'num_workers': MAX_WORKERS,
+    'num_workers': WORKERS_PER_TRIAL,
     'optimizer': torch.optim.AdamW,
     'lr': 1e-5,
     'weight_decay': 1e-4,

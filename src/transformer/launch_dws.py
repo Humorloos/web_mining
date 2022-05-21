@@ -6,6 +6,8 @@ from io import StringIO
 
 import pandas as pd
 
+from constants import TARGET_GPUS
+
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
     level=logging.INFO,
@@ -22,9 +24,14 @@ while True:
     print(gpu_data)
     gpu_data.gpu = gpu_data.gpu.str.rstrip(' %').astype('int32')
     gpu_data.memory = gpu_data.memory.str.rstrip(' MiB').astype('int32')
-    # For training on GPU with largest free memory
-    target_gpu = gpu_data.sort_values(by='memory', ascending=False).index[0]
-    logging.info(f'Starting training on GPU {target_gpu}')
+    # # For training on GPU with largest free memory
+    # target_gpu = gpu_data.sort_values(by='memory', ascending=False).index[0]
+    # logging.info(f'Starting training on GPU {target_gpu}')
+    # os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+    # os.environ['CUDA_VISIBLE_DEVICES'] = str(target_gpu)
+    # For training on specific GPUs
+    target_gpu = ','.join(str(gpu) for gpu in TARGET_GPUS)
+    logging.info(f'Starting training on GPU(s) {target_gpu}')
     os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
     os.environ['CUDA_VISIBLE_DEVICES'] = str(target_gpu)
     try:
@@ -32,7 +39,7 @@ while True:
     except Exception as e:
         while True:
             logging.exception(e)
-            sleep(60*60*24*7)
+            sleep(60 * 60 * 24 * 7)
     break
     # For waiting for some GPU to get idle
     # idle_gpus = gpu_data[(gpu_data.gpu == 0) & (gpu_data.memory > 48e3)]

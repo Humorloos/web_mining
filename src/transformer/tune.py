@@ -6,7 +6,7 @@ from ray.tune import CLIReporter
 from ray.tune.suggest.bohb import TuneBOHB
 from ray.tune.schedulers import HyperBandForBOHB
 
-from constants import TRANSFORMER_DIR, MAX_BATCH_SIZE, VAL_CHECK_INTERVAL, MAX_EPOCHS, MAX_GPUS, MAX_WORKERS
+from constants import TRANSFORMER_DIR, MAX_BATCH_SIZE, VAL_CHECK_INTERVAL, MAX_EPOCHS, WORKERS_PER_TRIAL
 from trainClassifier import train_classifier
 from utils import get_timestamp
 
@@ -29,7 +29,7 @@ search_config = {
 static_config = {
     'fine_tune': 'adapter',
     'data_source': 'premade',
-    'num_workers': MAX_WORKERS,
+    'num_workers': WORKERS_PER_TRIAL,
     'optimizer': torch.optim.AdamW,
 }
 
@@ -75,8 +75,8 @@ analysis = tune.run(
     trial_dirname_creator=get_trial_name,
     resume=RESUME,
     resources_per_trial={
-        'gpu': MAX_GPUS,
-        'cpu': MAX_WORKERS
+        'gpu': 1,
+        'cpu': WORKERS_PER_TRIAL
     },
     search_alg=search_alg,
     progress_reporter=reporter,

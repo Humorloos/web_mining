@@ -1,7 +1,7 @@
 import pandas as pd
 from torch.utils.data import DataLoader
 
-from constants import MAX_BATCH_SIZE, MAX_WORKERS, DATA_DIR
+from constants import MAX_BATCH_SIZE, WORKERS_PER_TRIAL, DATA_DIR
 from datasets.EmoBertDataset import EmoBertDataset
 from datasets.EmoticonDataset import EmoticonDataset
 from datasets.SST2TestSet import get_sst2_test_set
@@ -31,6 +31,6 @@ def get_test_dataloader(model: EmoBERT, source: str):
         shuffle=False,
         batch_size=min(MAX_BATCH_SIZE, test_set.data.shape[0]),
         collate_fn=model.custom_collate,
-        num_workers=MAX_WORKERS,
+        num_workers=WORKERS_PER_TRIAL,
         pin_memory=True
     )

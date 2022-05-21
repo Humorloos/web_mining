@@ -4,7 +4,7 @@ from pathlib import Path
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
 
-from constants import TRANSFORMER_DIR, MAX_EPOCHS, VAL_CHECK_INTERVAL, MAX_GPUS
+from constants import TRANSFORMER_DIR, MAX_EPOCHS, VAL_CHECK_INTERVAL
 from emoBert import EmoBERT
 from utils import get_timestamp
 
@@ -51,7 +51,7 @@ def train_classifier(config, checkpoint_dir=None, do_tune=False):
     trainer = pl.Trainer(
         logger=wandb_logger,
         callbacks=callbacks,
-        gpus=MAX_GPUS,
+        gpus=1,
         max_epochs=MAX_EPOCHS,
         val_check_interval=VAL_CHECK_INTERVAL,
     )
