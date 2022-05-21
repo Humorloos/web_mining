@@ -16,16 +16,21 @@ NUM_SAMPLES = 50
 RUN_NAME = get_timestamp()
 # RESUME = 'LOCAL'  # 'LOCAL' resumes at last checkpoint, False starts new trial
 RESUME = False  # 'LOCAL' resumes at last checkpoint, False starts new trial
+# if set to a run directory, restores search algorithm state from that run, otherwise initiates new search algorithm
+SEARCH_RESTORE_DIR = RAY_RESULTS_DIR / '2022-05-21_00.24'
 
-config = {
-    'fine_tune': 'adapter',
-    'data_source': 'premade',
+search_config = {
     'batch_size_train': tune.qloguniform(2, MAX_BATCH_SIZE, q=1),
-    'num_workers': MAX_WORKERS,
-    'optimizer': torch.optim.AdamW,
     'lr': tune.loguniform(1e-6, 1e-1),
     'weight_decay': tune.loguniform(1e-7, 1e-1),
     'dropout_prob': tune.uniform(0.1, 0.5),
+}
+
+static_config = {
+    'fine_tune': 'adapter',
+    'data_source': 'premade',
+    'num_workers': MAX_WORKERS,
+    'optimizer': torch.optim.AdamW,
 }
 
 # Reporter for reporting progress in command line
@@ -34,7 +39,10 @@ reporter = CLIReporter(
     metric_columns=["loss", "accuracy", "training_iteration"])
 
 # BOHB search algorithm for finding new hyperparameter configurations
-search_alg = TuneBOHB(metric='loss', mode='min')
+search_alg = TuneBOHB()
+if SEARCH_RESTORE_DIR is not None:
+    search_alg.restore_from_dir(SEARCH_RESTORE_DIR)
+search_alg.set_search_properties(metric='loss', mode='min', config=search_config)
 
 # BOHB scheduler for scheduling and discarding trials
 iterations_per_epoch = 1 / VAL_CHECK_INTERVAL
@@ -49,6 +57,7 @@ def get_trial_name(trial):
     """Function for generating trial names"""
     return f"{get_timestamp()}_{trial.trial_id}"
 
+
 # run hyperparameter optimization
 analysis = tune.run(
     tune.with_parameters(
@@ -57,7 +66,7 @@ analysis = tune.run(
     ),
     metric="loss",
     mode="min",
-    config=config,
+    config=static_config,
     num_samples=NUM_SAMPLES,
     scheduler=scheduler,
     name=RUN_NAME,
