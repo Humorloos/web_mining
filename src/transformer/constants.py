@@ -21,8 +21,6 @@ MAX_BATCH_SIZE = 128
 # spend 10 times more time on training than on validating
 # formula computes interval so that epoch is evenly split
 VAL_CHECK_INTERVAL = 1 / (ceil(1 / (10 * VAL_SET_SIZE / TRAIN_SET_SIZE)))
-# todo: set this depending on machine (e.g., torch.cuda.device_count())
-TARGET_GPUS = [2, 3, 4, 5, 6, 7]
 # todo: set this depending on machine (e.g., os.cpu_count())
 WORKERS_PER_TRIAL = 12
 ADAPTER_NAME = 'classification'

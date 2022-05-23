@@ -1,12 +1,8 @@
 import logging
 import os
-from subprocess import Popen, PIPE
 from time import sleep
-from io import StringIO
 
-import pandas as pd
-
-from constants import TARGET_GPUS
+from utils import get_idle_gpus
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -16,21 +12,13 @@ logging.basicConfig(
 
 # %%
 while True:
-    gpu_data = pd.read_csv(StringIO(
-        Popen(['nvidia-smi', '--query-gpu=utilization.gpu,memory.free', '--format=csv'], stdout=PIPE)
-            .communicate()[0]
-            .decode('utf-8')
-    )).rename(columns={'utilization.gpu [%]': 'gpu', ' memory.free [MiB]': 'memory'})
-    print(gpu_data)
-    gpu_data.gpu = gpu_data.gpu.str.rstrip(' %').astype('int32')
-    gpu_data.memory = gpu_data.memory.str.rstrip(' MiB').astype('int32')
     # # For training on GPU with largest free memory
-    # target_gpu = gpu_data.sort_values(by='memory', ascending=False).index[0]
+    # target_gpu = get_gpu_with_most_available_memory()
     # logging.info(f'Starting training on GPU {target_gpu}')
     # os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
     # os.environ['CUDA_VISIBLE_DEVICES'] = str(target_gpu)
-    # For training on specific GPUs
-    target_gpu = ','.join(str(gpu) for gpu in TARGET_GPUS)
+    # For training on idle GPUs
+    target_gpu = ','.join(str(gpu) for gpu in get_idle_gpus())
     logging.info(f'Starting training on GPU(s) {target_gpu}')
     os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
     os.environ['CUDA_VISIBLE_DEVICES'] = str(target_gpu)
