@@ -1,8 +1,10 @@
+import logging
 from datetime import datetime, timezone, timedelta
 from io import StringIO
 from subprocess import Popen, PIPE
 
 import pandas as pd
+import torch
 
 
 def get_timestamp():
@@ -16,15 +18,23 @@ def get_gpu_with_most_available_memory():
     Gets the gpu with the largest free memory.
     :return: the gpu's index
     """
-    gpu_data = pd.read_csv(StringIO(
-        Popen(['nvidia-smi', '--query-gpu=utilization.gpu,memory.free', '--format=csv'], stdout=PIPE)
-            .communicate()[0]
-            .decode('utf-8')
-    )).rename(columns={'utilization.gpu [%]': 'gpu', ' memory.free [MiB]': 'memory'})
+    gpu_data = get_nvidia_smi_data('--query-gpu=index,utilization.gpu,memory.free')\
+        .rename(columns={' utilization.gpu [%]': 'gpu', ' memory.free [MiB]': 'memory'})
     print(gpu_data)
     gpu_data.gpu = gpu_data.gpu.str.rstrip(' %').astype('int32')
     gpu_data.memory = gpu_data.memory.str.rstrip(' MiB').astype('int32')
-    return gpu_data.sort_values(by='memory', ascending=False).index[0]
+    available_devices = set()
+    # Prioritize previously used GPUs
+    for i in gpu_data['index']:
+        # Try to allocate on device:
+        device = torch.device(f"cuda:{i}")
+        try:
+            torch.ones(1).to(device)
+            available_devices.add(i)
+        except Exception as e:
+            logging.exception(e)
+    return str(gpu_data[gpu_data['index'].isin(available_devices)]
+               .sort_values(by='memory', ascending=False)['index'][0])
 
 
 def get_idle_gpus():
