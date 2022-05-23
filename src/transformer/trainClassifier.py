@@ -10,6 +10,12 @@ from utils import get_timestamp
 
 
 def train_classifier(config, checkpoint_dir=None, do_tune=False):
+    logging.basicConfig(
+        format='%(asctime)s %(levelname)-8s %(message)s',
+        level=logging.INFO,
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
     # initialize model
     if checkpoint_dir:
         logging.info(f'Loading model from checkpoint {checkpoint_dir}')
@@ -48,12 +54,20 @@ def train_classifier(config, checkpoint_dir=None, do_tune=False):
 
     logging.info('Instantiating trainer')
     # train model
-    trainer = pl.Trainer(
-        logger=wandb_logger,
-        callbacks=callbacks,
-        gpus=1,
-        max_epochs=MAX_EPOCHS,
-        val_check_interval=VAL_CHECK_INTERVAL,
-    )
+    trainer_kwargs = {
+        'logger': wandb_logger,
+        'callbacks': callbacks,
+        'devices': 1,
+        'accelerator': 'gpu',
+        'auto_select_gpus': True,
+        'max_epochs': MAX_EPOCHS,
+        'val_check_interval': VAL_CHECK_INTERVAL,
+    }
+    if do_tune:
+        trainer_kwargs.update({
+            'enable_progress_bar': False,
+            'enable_model_summary': False,
+        })
+    trainer = pl.Trainer(**trainer_kwargs)
     logging.info('Starting model training')
     trainer.fit(model)
