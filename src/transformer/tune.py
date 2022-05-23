@@ -10,6 +10,14 @@ from constants import TRANSFORMER_DIR, MAX_BATCH_SIZE, VAL_CHECK_INTERVAL, MAX_E
 from trainClassifier import train_classifier
 from utils import get_timestamp
 
+# # for debugging:
+# import os
+# import ray
+# from utils import get_idle_gpus
+# os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+# os.environ['CUDA_VISIBLE_DEVICES'] = str(get_idle_gpus()[0])
+# ray.init(local_mode=True)
+
 RAY_RESULTS_DIR = TRANSFORMER_DIR / 'ray_results'
 
 NUM_SAMPLES = 50
@@ -17,7 +25,8 @@ RUN_NAME = get_timestamp()
 # RESUME = 'LOCAL'  # 'LOCAL' resumes at last checkpoint, False starts new trial
 RESUME = False  # 'LOCAL' resumes at last checkpoint, False starts new trial
 # if set to a run directory, restores search algorithm state from that run, otherwise initiates new search algorithm
-SEARCH_RESTORE_DIR = RAY_RESULTS_DIR / '2022-05-21_00.24'
+SEARCH_RESTORE_DIR = RAY_RESULTS_DIR / '2022-05-21_12.40'
+# SEARCH_RESTORE_DIR = None
 
 search_config = {
     'batch_size_train': tune.qloguniform(2, MAX_BATCH_SIZE, q=1),
