@@ -13,11 +13,11 @@ VAL_SET_SIZE = 1000  # size of validation set
 TRAIN_SET_SIZE = COMPLETE_DATA_SIZE - VAL_SET_SIZE  # size of training set
 # todo: figure out best MAX_EPOCHS value (e.g., by training one example model until convergence and looking how many
 #  EPOCHS that took)
-MAX_EPOCHS = 2
+MAX_EPOCHS = 1
 PATIENCE = 3  # number of consecutive checks with validation loss < MIN_DELTA after which to stop early
 MIN_DELTA = 0.01  # minimum delta in validation loss for early stopping
 # todo: figure out how large the batches may be so that machine can still handle them
-MAX_BATCH_SIZE = 128
+MAX_BATCH_SIZE = 64
 # spend 10 times more time on training than on validating
 # formula computes interval so that epoch is evenly split
 VAL_CHECK_INTERVAL = 1 / (ceil(1 / (10 * VAL_SET_SIZE / TRAIN_SET_SIZE)))
