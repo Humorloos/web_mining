@@ -1,36 +1,46 @@
 """Script for hyperparameter optimization"""
-from datetime import timedelta, datetime, timezone
 
-import pandas as pd
 import torch
 from ray import tune
 from ray.tune import CLIReporter
 from ray.tune.suggest.bohb import TuneBOHB
 from ray.tune.schedulers import HyperBandForBOHB
 
-from src.constants.constants import TRANSFORMER_DIR, MAX_BATCH_SIZE, VAL_CHECK_INTERVAL, MAX_EPOCHS, MAX_GPUS, \
-    MAX_WORKERS
-from src.transformer.trainClassifier import train_classifier
+from constants import TRANSFORMER_DIR, MAX_BATCH_SIZE, VAL_CHECK_INTERVAL, MAX_EPOCHS, WORKERS_PER_TRIAL
+from trainClassifier import train_classifier
+from utils import get_timestamp
+
+# # for debugging:
+# import os
+# import ray
+# from utils import get_idle_gpus
+# os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+# os.environ['CUDA_VISIBLE_DEVICES'] = str(get_idle_gpus()[0])
+# ray.init(local_mode=True)
 
 RAY_RESULTS_DIR = TRANSFORMER_DIR / 'ray_results'
 
-local_timezone = datetime.now(timezone(timedelta(0))).astimezone().tzinfo
-start_timestamp = pd.Timestamp.today(tz=local_timezone).strftime('%Y-%m-%d_%H.%M')
-NUM_SAMPLES = 1
-RUN_NAME = "test"
+NUM_SAMPLES = 50
+RUN_NAME = get_timestamp()
 # RESUME = 'LOCAL'  # 'LOCAL' resumes at last checkpoint, False starts new trial
 RESUME = False  # 'LOCAL' resumes at last checkpoint, False starts new trial
+# if set to a run directory, restores search algorithm state from that run, otherwise initiates new search algorithm
+SEARCH_RESTORE_DIR = RAY_RESULTS_DIR / '2022-05-21_12.40'
+# SEARCH_RESTORE_DIR = None
 
-config = {
-    'data_source': 'premade',
+search_config = {
     'batch_size_train': tune.qloguniform(2, MAX_BATCH_SIZE, q=1),
-    'num_workers': MAX_WORKERS,
-    'optimizer': torch.optim.AdamW,
-    'lr': tune.loguniform(1e-4, 1e-1),
+    'lr': tune.loguniform(1e-6, 1e-1),
     'weight_decay': tune.loguniform(1e-7, 1e-1),
     'dropout_prob': tune.uniform(0.1, 0.5),
 }
 
+static_config = {
+    'fine_tune': 'adapter',
+    'data_source': 'premade',
+    'num_workers': WORKERS_PER_TRIAL,
+    'optimizer': torch.optim.AdamW,
+}
 
 # Reporter for reporting progress in command line
 reporter = CLIReporter(
@@ -38,7 +48,10 @@ reporter = CLIReporter(
     metric_columns=["loss", "accuracy", "training_iteration"])
 
 # BOHB search algorithm for finding new hyperparameter configurations
-search_alg = TuneBOHB(metric='loss', mode='min')
+search_alg = TuneBOHB()
+if SEARCH_RESTORE_DIR is not None:
+    search_alg.restore_from_dir(SEARCH_RESTORE_DIR)
+search_alg.set_search_properties(metric='loss', mode='min', config=search_config)
 
 # BOHB scheduler for scheduling and discarding trials
 iterations_per_epoch = 1 / VAL_CHECK_INTERVAL
@@ -51,19 +64,18 @@ scheduler = HyperBandForBOHB(
 
 def get_trial_name(trial):
     """Function for generating trial names"""
-    return f"{pd.Timestamp.today(tz=local_timezone).strftime('%Y-%m-%d_%H.%M')}_{trial.trial_id}"
+    return f"{get_timestamp()}_{trial.trial_id}"
 
 
 # run hyperparameter optimization
 analysis = tune.run(
     tune.with_parameters(
         train_classifier,
-        do_tune=True,
-        fine_tune=False
+        do_tune=True
     ),
     metric="loss",
     mode="min",
-    config=config,
+    config=static_config,
     num_samples=NUM_SAMPLES,
     scheduler=scheduler,
     name=RUN_NAME,
@@ -72,8 +84,8 @@ analysis = tune.run(
     trial_dirname_creator=get_trial_name,
     resume=RESUME,
     resources_per_trial={
-        'gpu': MAX_GPUS,
-        'cpu': MAX_WORKERS
+        'gpu': 1,
+        'cpu': WORKERS_PER_TRIAL
     },
     search_alg=search_alg,
     progress_reporter=reporter,

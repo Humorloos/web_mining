@@ -13,7 +13,7 @@ VAL_SET_SIZE = 1000  # size of validation set
 TRAIN_SET_SIZE = COMPLETE_DATA_SIZE - VAL_SET_SIZE  # size of training set
 # todo: figure out best MAX_EPOCHS value (e.g., by training one example model until convergence and looking how many
 #  EPOCHS that took)
-MAX_EPOCHS = 10
+MAX_EPOCHS = 1
 PATIENCE = 3  # number of consecutive checks with validation loss < MIN_DELTA after which to stop early
 MIN_DELTA = 0.01  # minimum delta in validation loss for early stopping
 # todo: figure out how large the batches may be so that machine can still handle them
@@ -21,17 +21,16 @@ MAX_BATCH_SIZE = 64
 # spend 10 times more time on training than on validating
 # formula computes interval so that epoch is evenly split
 VAL_CHECK_INTERVAL = 1 / (ceil(1 / (10 * VAL_SET_SIZE / TRAIN_SET_SIZE)))
-# todo: set this depending on machine (e.g., torch.cuda.device_count())
-MAX_GPUS = 0
 # todo: set this depending on machine (e.g., os.cpu_count())
-MAX_WORKERS = 1
+WORKERS_PER_TRIAL = 12
 ADAPTER_NAME = 'classification'
 DEFAULT_CONFIG = {
-    'data_source': 'premade',
-    'batch_size_train': 16,
-    'num_workers': MAX_WORKERS,
+    'fine_tune': 'adapter',
+    'data_source': 'premade',  # one of 'original', 'crawl', or 'premade'
+    'batch_size_train': MAX_BATCH_SIZE,
+    'num_workers': WORKERS_PER_TRIAL,
     'optimizer': torch.optim.AdamW,
-    'lr': 1e-2,
-    'weight_decay': 1e-3,
+    'lr': 1e-5,
+    'weight_decay': 1e-4,
     'dropout_prob': 0.5,
 }
