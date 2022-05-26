@@ -22,3 +22,10 @@ def get_sst2_test_set():
         ]
     texts_without_neutral['polarity'] = texts_without_neutral['polarity'].round().astype('int')
     return EmoBertDataset(texts_without_neutral)
+
+
+def get_preprocessed_sst2_test_set():
+    return EmoBertDataset(
+        data=pd.read_csv(SST2_DIR / 'sst2_preprocessed.csv')[['prep_text', 'polarity']]
+            .rename(columns={'prep_text': 'text'})
+    )

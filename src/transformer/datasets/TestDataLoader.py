@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 from constants import MAX_BATCH_SIZE, WORKERS_PER_TRIAL, DATA_DIR
 from datasets.EmoBertDataset import EmoBertDataset
 from datasets.EmoticonDataset import EmoticonDataset
-from datasets.SST2TestSet import get_sst2_test_set
+from datasets.SST2TestSet import get_preprocessed_sst2_test_set
 from emoBert import EmoBERT
 
 
@@ -18,7 +18,7 @@ def get_test_dataloader(model: EmoBERT, source: str):
     :return: Dataloader loading data from the provided source
     """
     if source == 'sst2':
-        test_set = get_sst2_test_set()
+        test_set = get_preprocessed_sst2_test_set()
     elif source == 'original':
         test_set = EmoBertDataset(data=EmoticonDataset('test').data)
     elif source == 'premade':
