@@ -26,6 +26,6 @@ def get_sst2_test_set():
 
 def get_preprocessed_sst2_test_set():
     return EmoBertDataset(
-        data=pd.read_csv(SST2_DIR / 'sst2_preprocessed.csv')[['prep_text', 'polarity']]
+        data=pd.read_csv(SST2_DIR / 'sst2_preprocessed.csv')[['prep_text', 'polarity']].dropna()
             .rename(columns={'prep_text': 'text'})
     )
