@@ -9,7 +9,7 @@ class EmoBertDataset(Dataset):
         self.data = data
 
     @staticmethod
-    def from_crawled_dataset(dataset):
+    def from_preprocessed_dataset(dataset):
         return EmoBertDataset(
             data=dataset[['prep_text', 'sentiment']].rename(columns={'prep_text': 'text', 'sentiment': 'polarity'})
         )

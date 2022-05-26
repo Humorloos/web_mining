@@ -20,13 +20,15 @@ def get_test_dataloader(model: EmoBERT, source: str):
     if source == 'sst2':
         test_set = get_preprocessed_sst2_test_set()
     elif source == 'original':
-        test_set = EmoBertDataset(data=EmoticonDataset('test').data)
+        test_set = EmoBertDataset.from_preprocessed_dataset(
+            pd.read_csv(DATA_DIR / 'emoticon_paper' / 'evaluation_paper.csv')
+        )
     elif source == 'premade':
-        test_set = EmoBertDataset.from_crawled_dataset(
+        test_set = EmoBertDataset.from_preprocessed_dataset(
             pd.read_csv(DATA_DIR / 'premade_datasets' / 'evaluation_dataset_non_lemmatized.csv')
         )
     elif source == 'reddit':
-        test_set = EmoBertDataset.from_crawled_dataset(pd.concat([
+        test_set = EmoBertDataset.from_preprocessed_dataset(pd.concat([
             pd.read_csv(DATA_DIR / 'reddit' / f'{polarity}_reddit_annotated_.csv')
             for polarity in ['negative', 'positive']
         ]))
